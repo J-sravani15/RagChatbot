@@ -1,0 +1,9 @@
+Python is a high-level programming language.
+
+Machine Learning is a subset of Artificial Intelligence.
+
+Artificial Intelligence enables machines to mimic human intelligence.
+
+DBMS stands for Database Management System.
+
+Operating Systems manage computer hardware and software resources.
