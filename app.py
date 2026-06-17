@@ -1,12 +1,12 @@
 import streamlit as st
-import numpy as np
+import pymupdf4llm
+from llama_cpp import Llama
+import re
+import tempfile
 import time
-from pypdf import PdfReader
-from sentence_transformers import SentenceTransformer
-from langchain_ollama import OllamaLLM
 
 # -----------------------------
-# Page Configuration
+# Page Config
 # -----------------------------
 
 st.set_page_config(page_title="StudentAI", page_icon="🎓", layout="wide")
@@ -18,92 +18,79 @@ st.set_page_config(page_title="StudentAI", page_icon="🎓", layout="wide")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if "chunks" not in st.session_state:
-    st.session_state.chunks = []
-
-if "embeddings" not in st.session_state:
-    st.session_state.embeddings = None
+if "sections" not in st.session_state:
+    st.session_state.sections = []
 
 # -----------------------------
-# Models
+# Load TinyLlama
 # -----------------------------
 
 
 @st.cache_resource
-def load_embedding_model():
-    return SentenceTransformer("all-MiniLM-L6-v2")
+def load_model():
+    return Llama(
+        model_path="models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+        n_ctx=4096,
+        n_threads=8,
+        verbose=False,
+    )
 
 
-@st.cache_resource
-def load_llm():
-    return OllamaLLM(model="llama3")
-
-
-embedding_model = load_embedding_model()
-llm = load_llm()
-
-# -----------------------------
-# PDF Processing
-# -----------------------------
-
-
-def extract_text_from_pdf(pdf_file):
-
-    reader = PdfReader(pdf_file)
-
-    text = ""
-
-    for page in reader.pages:
-        page_text = page.extract_text()
-
-        if page_text:
-            text += page_text + "\n"
-
-    return text
-
+llm = load_model()
 
 # -----------------------------
-# Chunking
+# Section Builder
 # -----------------------------
 
 
-def chunk_text(text, chunk_size=3000, overlap=300):
+def build_sections(markdown_text):
 
-    chunks = []
+    sections = []
 
-    start = 0
+    parts = re.split(r"\n##\s+", markdown_text)
 
-    while start < len(text):
-        end = start + chunk_size
+    for part in parts:
+        part = part.strip()
 
-        chunks.append(text[start:end])
+        if not part:
+            continue
 
-        start += chunk_size - overlap
+        lines = part.split("\n", 1)
 
-    return chunks
+        title = lines[0]
+
+        content = lines[1] if len(lines) > 1 else ""
+
+        sections.append({"title": title, "content": content})
+
+    return sections
 
 
 # -----------------------------
-# Similarity Search
+# Retrieval
 # -----------------------------
 
 
-def retrieve(query, top_k=3):
+def retrieve(question, top_k=2):
 
-    query_embedding = embedding_model.encode([query])[0]
+    results = []
 
-    similarities = []
+    query_words = question.lower().split()
 
-    for emb in st.session_state.embeddings:
-        similarity = np.dot(query_embedding, emb) / (
-            np.linalg.norm(query_embedding) * np.linalg.norm(emb)
-        )
+    for section in st.session_state.sections:
+        score = 0
 
-        similarities.append(similarity)
+        text = (section["title"] + " " + section["content"]).lower()
 
-    top_indices = np.argsort(similarities)[-top_k:][::-1]
+        for word in query_words:
+            if word in text:
+                score += 1
 
-    return [st.session_state.chunks[i] for i in top_indices]
+        results.append((score, section))
+
+    results.sort(key=lambda x: x[0], reverse=True)
+
+    return [item[1] for item in results[:top_k]]
 
 
 # -----------------------------
@@ -111,7 +98,7 @@ def retrieve(query, top_k=3):
 # -----------------------------
 
 with st.sidebar:
-    st.title("📚 Upload Notes")
+    st.title("📚 Upload PDF")
 
     uploaded_files = st.file_uploader(
         "Upload PDF Notes", type=["pdf"], accept_multiple_files=True
@@ -122,32 +109,34 @@ with st.sidebar:
             st.warning("Please upload at least one PDF.")
 
         else:
-            with st.spinner("📖 Reading PDFs and generating embeddings..."):
-                all_text = ""
+            all_sections = []
 
+            with st.spinner("📖 Extracting PDF structure..."):
                 for pdf in uploaded_files:
-                    text = extract_text_from_pdf(pdf)
+                    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix=".pdf"
+                    ) as tmp:
+                        tmp.write(pdf.read())
 
-                    all_text += text + "\n"
+                        markdown_text = pymupdf4llm.to_markdown(tmp.name)
 
-                chunks = chunk_text(all_text, chunk_size=3000, overlap=300)
+                    sections = build_sections(markdown_text)
 
-                embeddings = embedding_model.encode(
-                    chunks, batch_size=128, show_progress_bar=True
-                )
+                    all_sections.extend(sections)
 
-                st.session_state.chunks = chunks
-                st.session_state.embeddings = embeddings
+            st.session_state.sections = all_sections
 
             st.success(f"Processed {len(uploaded_files)} PDF(s)")
 
             st.info(
                 f"""
-📄 Chunks Created: {len(chunks)}
+📄 Sections Created: {len(all_sections)}
 
-📦 Chunk Size: 3000
+⚡ Retrieval: Keyword Search
 
-🔍 Retrieval Chunks: 3
+🤖 Model: TinyLlama
+
+📚 Workflow: Mozilla Local Q&A
 """
             )
 
@@ -157,10 +146,10 @@ with st.sidebar:
 
 st.title("🎓 StudentAI")
 
-st.caption("PDF RAG Chatbot using Streamlit + Ollama")
+st.caption("Mozilla-style Local Document Q&A")
 
 # -----------------------------
-# Display Chat History
+# Chat History
 # -----------------------------
 
 for msg in st.session_state.messages:
@@ -168,10 +157,10 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"])
 
 # -----------------------------
-# User Input
+# User Question
 # -----------------------------
 
-question = st.chat_input("Ask a question from your uploaded PDFs...")
+question = st.chat_input("Ask a question from your PDFs...")
 
 if question:
     st.session_state.messages.append({"role": "user", "content": question})
@@ -179,23 +168,29 @@ if question:
     with st.chat_message("user"):
         st.markdown(question)
 
-    if not st.session_state.chunks:
+    if not st.session_state.sections:
         answer = "Please upload and process PDF files first."
 
     else:
-        retrieved_chunks = retrieve(question, top_k=3)
+        retrieved_sections = retrieve(question, top_k=2)
 
-        context = "\n\n".join(retrieved_chunks)
+        context = "\n\n".join([section["content"] for section in retrieved_sections])
+
+        # Limit context size
+        context = context[:1500]
 
         prompt = f"""
 You are StudentAI.
 
-Answer ONLY using the provided context.
+Answer the question using ONLY the context.
 
-If the answer is not present in the context,
-say:
+Keep the answer under 4 sentences.
 
-"I couldn't find that information in the uploaded notes."
+Do not repeat information.
+
+If the answer is not found, say:
+
+I could not find the answer in the document.
 
 Context:
 {context}
@@ -207,23 +202,23 @@ Answer:
 """
 
         with st.spinner("🤔 StudentAI is thinking..."):
-            answer = llm.invoke(prompt)
+            response = llm(prompt, max_tokens=120, temperature=0.2)
+
+            answer = response["choices"][0]["text"].strip()
 
     with st.chat_message("assistant"):
         placeholder = st.empty()
 
-        words = answer.split()
-
         typed_text = ""
 
-        for word in words:
+        for word in answer.split():
             typed_text += word + " "
 
             placeholder.markdown(typed_text)
 
-            time.sleep(0.03)
+            time.sleep(0.01)
 
-        if st.session_state.chunks:
+        if st.session_state.sections:
             with st.expander("📄 Retrieved Context"):
                 st.write(context)
 
