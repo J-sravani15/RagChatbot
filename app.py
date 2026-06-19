@@ -44,7 +44,6 @@ llm = load_model()
 
 
 def build_sections(markdown_text):
-
     sections = []
 
     parts = re.split(r"\n##\s+", markdown_text)
@@ -72,7 +71,6 @@ def build_sections(markdown_text):
 
 
 def retrieve(question, top_k=2):
-
     results = []
 
     query_words = question.lower().split()
