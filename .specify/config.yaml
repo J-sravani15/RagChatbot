@@ -1,0 +1,5 @@
+# Spec-Kit Configuration
+version: "1.0"
+constitution: "../constitution.md"
+templates: "../Templates"
+specs: "../specs"

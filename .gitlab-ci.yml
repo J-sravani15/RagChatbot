@@ -23,6 +23,7 @@ stages:
   - type_check
   - security
   - test
+  - coverage
   - audit
   - compliance
 
@@ -77,6 +78,11 @@ gitleaks:
 
 pytest:
   stage: test
+  script:
+    - uv run pytest
+
+coverage:
+  stage: coverage
   coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+\.?\d*)%/'
   script:
     - uv run pytest --cov=app --cov-report=term --cov-report=xml --cov-fail-under=80
@@ -102,6 +108,7 @@ spec-kit-check:
   stage: compliance
   script:
     - test -d .specify && echo ".specify/ exists"
-    - test -f .specify/constitution.md && echo "constitution.md exists"
+    - test -f constitution.md && echo "constitution.md exists"
+    - test -d Templates && echo "Templates/ exists"
     - test -d specs && echo "specs/ exists"
   allow_failure: false
