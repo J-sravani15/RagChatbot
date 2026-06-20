@@ -1,0 +1,100 @@
+image: python:3.13-slim
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+
+cache:
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+  paths:
+    - .cache/pip
+    - .cache/uv
+    - .venv/
+
+before_script:
+  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
+  - curl -LsSf https://astral.sh/uv/install.sh | sh
+  - export PATH="$HOME/.local/bin:$PATH"
+  - uv sync --frozen
+
+stages:
+  - lint
+  - typecheck
+  - security
+  - test
+  - audit
+  - compliance
+
+ruff:
+  stage: lint
+  script:
+    - uv run ruff check .
+  allow_failure: false
+
+pylint:
+  stage: lint
+  script:
+    - uv run pylint app.py manual_*.py
+  allow_failure: false
+
+flake8:
+  stage: lint
+  script:
+    - uv run flake8 app.py manual_*.py tests/
+  allow_failure: false
+
+mypy:
+  stage: typecheck
+  script:
+    - uv run mypy app.py tests/
+  allow_failure: false
+
+bandit:
+  stage: security
+  script:
+    - uv run bandit -c pyproject.toml -r app.py manual_*.py
+  allow_failure: false
+
+semgrep:
+  stage: security
+  script:
+    - uv run semgrep --config=auto --config=.semgrep.toml --error .
+  allow_failure: false
+
+gitleaks:
+  stage: security
+  script:
+    - apt-get install -y gitleaks
+    - gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
+  allow_failure: false
+
+pytest:
+  stage: test
+  coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+\.?\d*)%/'
+  script:
+    - uv run pytest --cov=app --cov-report=term --cov-report=xml --cov-fail-under=80
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+dependency-audit:
+  stage: audit
+  script:
+    - uv audit
+  allow_failure: false
+
+changelog-check:
+  stage: compliance
+  script:
+    - uv run git-cliff --unreleased --check
+  allow_failure: false
+
+spec-kit-check:
+  stage: compliance
+  script:
+    - test -d .specify && echo ".specify/ exists"
+    - test -f .specify/constitution.md && echo "constitution.md exists"
+    - test -d specs && echo "specs/ exists"
+  allow_failure: false

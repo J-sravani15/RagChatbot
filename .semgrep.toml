@@ -1,0 +1,47 @@
+rules:
+  - id: python-no-hardcoded-secrets
+    pattern-either:
+      - pattern: 'PASSWORD = $VAL'
+      - pattern: 'SECRET_KEY = $VAL'
+      - pattern: 'API_KEY = $VAL'
+      - pattern: 'TOKEN = $VAL'
+    message: Hardcoded secret detected
+    severity: WARNING
+    languages:
+      - python
+
+  - id: python-no-eval
+    pattern: eval(...)
+    message: Avoid using eval due to security risks
+    severity: ERROR
+    languages:
+      - python
+
+  - id: python-no-exec
+    pattern: exec(...)
+    message: Avoid using exec due to security risks
+    severity: ERROR
+    languages:
+      - python
+
+  - id: python-subprocess-shell-true
+    pattern: subprocess.call(..., shell=True)
+    message: Avoid shell=True in subprocess calls
+    severity: WARNING
+    languages:
+      - python
+
+  - id: python-request-timeout
+    pattern: requests.get(...)
+    message: requests.get() called without timeout
+    severity: WARNING
+    languages:
+      - python
+    fix: requests.get(..., timeout=30)
+
+  - id: python-pickle-unsafe
+    pattern: pickle.load(...)
+    message: Pickle loading can execute arbitrary code
+    severity: WARNING
+    languages:
+      - python

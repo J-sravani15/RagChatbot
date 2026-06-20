@@ -1,12 +1,12 @@
 [project]
 name = "studentai"
 version = "0.1.0"
-description = "Local Retrieval-Augmented Generation (RAG) chatbot for students"
+description = "Local Retrieval-Augmented Generation (RAG) chatbot for students — privacy-first PDF study assistant"
 readme = "README.md"
 requires-python = ">=3.13"
-license = { text = "MIT" }
+license = { text = "AGPL-3.0-only" }
 authors = [
-{ name = "Sravani", email = "[sravani15@code.swecha.org](mailto:sravani15@code.swecha.org)" },
+{ name = "Sravani Jagarlamudi", email = "sravani15@code.swecha.org" },
 ]
 dependencies = [
 "llama-cpp-python>=0.3.30",
@@ -18,13 +18,16 @@ dependencies = [
 [dependency-groups]
 dev = [
 "bandit>=1.8.0",
+"flake8>=7.2.0",
 "mypy>=2.1.0",
 "pre-commit>=4.6.0",
 "pylint>=3.2.0",
 "pytest>=9.1.1",
+"pytest-cov>=6.0.0",
 "pyupgrade>=3.19.0",
 "radon>=6.0.1",
 "ruff>=0.15.18",
+"semgrep>=1.106.0",
 "vulture>=2.14",
 ]
 
@@ -35,13 +38,20 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+exclude = [".venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".opencode"]
+per-file-ignores = []
+docstring-convention = "google"
+
 [tool.mypy]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v"
+addopts = "-v --cov=app --cov-report=term --cov-fail-under=80"
 
 [tool.bandit]
 exclude_dirs = [".venv", "**pycache**", "tests", ".opencode"]
@@ -65,6 +75,18 @@ paths = [
 "manual_llama.py",
 "manual_qa.py",
 ]
+
+[tool.coverage.run]
+source = ["app"]
+omit = [".venv/*", "__pycache__/*", "tests/*"]
+relative_files = true
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage.xml"
 
 [tool.radon]
 exclude = [".venv", "**pycache**", "tests", ".opencode"]
