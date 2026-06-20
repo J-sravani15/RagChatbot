@@ -19,7 +19,8 @@ before_script:
 
 stages:
   - lint
-  - typecheck
+  - format
+  - type_check
   - security
   - test
   - audit
@@ -29,6 +30,12 @@ ruff:
   stage: lint
   script:
     - uv run ruff check .
+  allow_failure: false
+
+ruff-format:
+  stage: format
+  script:
+    - uv run ruff format --check .
   allow_failure: false
 
 pylint:
@@ -44,7 +51,7 @@ flake8:
   allow_failure: false
 
 mypy:
-  stage: typecheck
+  stage: type_check
   script:
     - uv run mypy app.py tests/
   allow_failure: false
