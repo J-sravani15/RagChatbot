@@ -107,7 +107,7 @@ changelog-check:
 spec-kit-check:
   stage: compliance
   script:
-    - test -d .specify && echo ".specify/ exists"
+    - test -d specify && echo "specify/ exists"
     - test -f constitution.md && echo "constitution.md exists"
     - test -d Templates && echo "Templates/ exists"
     - test -d specs && echo "specs/ exists"
