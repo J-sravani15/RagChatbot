@@ -1,6 +1,7 @@
-import pymupdf4llm
 import json
 import re
+
+import pymupdf4llm
 
 pdf_path = "documents/sales.pdf"
 

@@ -1,93 +1,208 @@
-# Rag Chatbot
+# StudentAI 🎓
 
+**Local Retrieval-Augmented Generation (RAG) Chatbot for Students**
 
+StudentAI is a privacy-first, local document Q&A application. Upload PDF study materials and ask questions — the system retrieves relevant content and generates answers using a local LLM. No internet connection, no API costs, no data leaves your machine.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Features
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **PDF Upload & Extraction** — Upload one or more PDF files; text is automatically extracted using PyMuPDF4LLM.
+- **Section-Based Retrieval** — Documents are split into logical sections; keyword scoring finds the most relevant content for your question.
+- **Local LLM Inference** — Uses llama.cpp with a TinyLlama GGUF model. Everything runs on your machine.
+- **Typewriter Response** — Answers are rendered word-by-word for a natural reading experience.
+- **Retrieved Context Display** — Expand to see exactly which parts of the document were used to generate the answer.
+- **Clear Chat** — Reset the conversation with one click.
+- **Streamlit UI** — Clean, responsive web interface.
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Architecture
 
 ```
-cd existing_repo
-git remote add origin https://code.swecha.org/sravani15/rag-chatbot.git
-git branch -M main
-git push -uf origin main
+┌─────────────────────────────────────────────────────────────┐
+│                     User (Browser)                          │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Streamlit Frontend                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
+│  │ PDF Upload  │  │ Chat Panel   │  │ Context Viewer   │   │
+│  └──────┬──────┘  └──────┬───────┘  └──────────────────┘   │
+└─────────┼────────────────┼──────────────────────────────────┘
+          │                │
+          ▼                ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Application Logic                         │
+│  ┌──────────────────┐  ┌────────────────────────────────┐   │
+│  │ Section Builder  │  │ Keyword Retrieval              │   │
+│  │ (re.split on ##) │  │ (word overlap scoring, top_k)  │   │
+│  └────────┬─────────┘  └───────────────┬────────────────┘   │
+└───────────┼────────────────────────────┼────────────────────┘
+            │                            │
+            ▼                            ▼
+┌─────────────────────┐  ┌────────────────────────────────────┐
+│  PyMuPDF4LLM        │  │  llama.cpp (TinyLlama GGUF)        │
+│  (PDF → Markdown)   │  │  (Prompt + Context → Answer)       │
+└─────────────────────┘  └────────────────────────────────────┘
 ```
 
-## Integrate with your tools
+**Data Flow:**
 
-- [ ] [Set up project integrations](https://code.swecha.org/sravani15/rag-chatbot/-/settings/integrations)
+```
+PDF Upload → PyMuPDF4LLM → Markdown Text
+    → Section Builder (split by ## headings)
+    → User Question
+    → Keyword Retrieval (score sections by word overlap)
+    → Top-k Sections → Context Truncation (1500 chars)
+    → LLM Prompt (Context + Question)
+    → Generated Answer → Streamlit UI (typewriter effect)
+```
 
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+### Prerequisites
+
+- Python 3.13 or higher
+- A GGUF model file in the `models/` directory (default: `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`)
+
+### Setup
+
+1. **Install uv** (fast Python package manager):
+
+   ```bash
+   pip install uv
+   ```
+
+2. **Clone the repository:**
+
+   ```bash
+   git clone https://code.swecha.org/sravani15/rag-chatbot.git
+   cd rag-chatbot
+   ```
+
+3. **Install dependencies:**
+
+   ```bash
+   uv sync --all-groups
+   ```
+
+4. **Place a GGUF model file** in `models/`. You can download TinyLlama:
+
+   ```bash
+   # Example using a TinyLlama GGUF model
+   # Place the file at: models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+   ```
+
+5. **Run the application:**
+
+   ```bash
+   uv run streamlit run app.py
+   ```
+
+6. **Open your browser** to `http://localhost:8501`.
+
+---
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+1. Open StudentAI in your browser.
+2. In the sidebar, click **Browse files** to upload one or more PDF files.
+3. Click **Process PDFs** to extract and index the content.
+4. Type your question in the chat input and press Enter.
+5. View the answer and expand **Retrieved Context** to see source material.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+---
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Pre-commit
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+This project uses [pre-commit](https://pre-commit.com/) to enforce code quality. Install the hooks:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+uv run pre-commit install
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Run all hooks manually:
+
+```bash
+uv run pre-commit run --all-files
+```
+
+The following checks are enforced:
+
+| Tool      | Category              | Purpose                         |
+|-----------|-----------------------|---------------------------------|
+| Ruff      | Linting & Formatting  | Code style and quality          |
+| Mypy      | Type Checking         | Static type analysis            |
+| Pytest    | Testing               | Test suite execution            |
+| Bandit    | Security              | Vulnerability scanning          |
+| Pylint    | Code Quality          | Deep static analysis            |
+| Pyupgrade | Modernization         | Python syntax upgrades          |
+| Vulture   | Dead Code             | Unused code detection           |
+| Radon     | Complexity            | Cyclomatic complexity analysis  |
+| Semgrep   | SAST                  | Static application security     |
+
+---
+
+## Testing
+
+Run the test suite with pytest:
+
+```bash
+uv run pytest
+```
+
+Tests are located in the `tests/` directory. Coverage includes:
+
+- Section building from markdown text
+- Retrieval logic (keyword-based scoring)
+
+---
+
+## Technologies
+
+| Component               | Technology                      |
+|-------------------------|---------------------------------|
+| Programming Language    | Python 3.13+                    |
+| Web Framework           | Streamlit                       |
+| PDF Extraction          | PyMuPDF4LLM                     |
+| LLM Inference           | llama.cpp (via llama-cpp-python)|
+| Model                   | TinyLlama 1.1B (GGUF)           |
+| Package Manager         | uv                              |
+| Linting                 | Ruff, Pylint                    |
+| Type Checking           | Mypy                            |
+| Testing                 | Pytest                          |
+| Security                | Bandit, Semgrep                 |
+| Dead Code Detection     | Vulture                         |
+| Code Complexity         | Radon                           |
+| Pre-commit              | Pre-commit                      |
+
+---
+
+## Mozilla Local-First Workflow
+
+StudentAI follows the **Mozilla local-first** philosophy:
+
+- **No external APIs** — All LLM inference runs locally via llama.cpp.
+- **No data transmission** — PDFs are processed entirely on your machine.
+- **No account required** — No sign-up, no login, no tracking.
+- **Offline-capable** — Once dependencies and model are downloaded, the application works fully offline.
+- **Privacy by design** — Your study materials never leave your computer.
+
+This approach aligns with Mozilla's principles of putting users in control of their data and computing experience.
+
+---
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the MIT License.
+
+---
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for our security policy and vulnerability reporting guidelines.

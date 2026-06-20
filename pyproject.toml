@@ -1,30 +1,73 @@
 [project]
 name = "studentai"
 version = "0.1.0"
-description = "Add your description here"
+description = "Local Retrieval-Augmented Generation (RAG) chatbot for students"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "langchain-ollama>=1.1.0",
-    "llama-cpp-python>=0.3.30",
-    "numpy>=2.2.0",
-    "pymupdf4llm>=1.27.2.3",
-    "pypdf>=6.13.1",
-    "sentence-transformers>=5.5.1",
-    "streamlit>=1.58.0",
+license = { text = "MIT" }
+authors = [
+{ name = "Sravani", email = "[sravani15@code.swecha.org](mailto:sravani15@code.swecha.org)" },
 ]
-
-[tool.uv.workspace]
-members = [
-    "studentai",
+dependencies = [
+"llama-cpp-python>=0.3.30",
+"numpy>=2.2.0",
+"pymupdf4llm>=1.27.2.3",
+"streamlit>=1.58.0",
 ]
 
 [dependency-groups]
 dev = [
-    "mypy>=2.1.0",
-    "pre-commit>=4.6.0",
-    "pytest>=9.1.1",
-    "ruff>=0.15.18",
+"bandit>=1.8.0",
+"mypy>=2.1.0",
+"pre-commit>=4.6.0",
+"pylint>=3.2.0",
+"pytest>=9.1.1",
+"pyupgrade>=3.19.0",
+"radon>=6.0.1",
+"ruff>=0.15.18",
+"vulture>=2.14",
 ]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[tool.bandit]
+exclude_dirs = [".venv", "**pycache**", "tests", ".opencode"]
+skips = ["B101", "B311"]
+
+[tool.pylint]
+py-version = "3.13"
+max-line-length = 100
+ignore = [".venv", "**pycache**", ".opencode"]
+disable = ["C0103", "C0114", "C0115", "C0116", "W0621", "R0801", "R0903", "R0913"]
+
+[tool.pyupgrade]
+py39-plus = true
+
+[tool.vulture]
+paths = [
+"app.py",
+"manual_extract.py",
+"manual_sections.py",
+"manual_retrieval.py",
+"manual_llama.py",
+"manual_qa.py",
+]
+
+[tool.radon]
+exclude = [".venv", "**pycache**", "tests", ".opencode"]
+show_complexity = true
+average = true
+order = "SCORE"

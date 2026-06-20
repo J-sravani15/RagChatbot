@@ -2,15 +2,13 @@ models/
 .venv/
 __pycache__/
 *.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 sections.json
 
 app_backup.py
 
-test_extract.py
-test_sections.py
-test_retrieval.py
-test_llama.py
-test_qa.py
 .opencode/
 documents/*.pdf

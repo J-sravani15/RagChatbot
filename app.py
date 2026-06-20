@@ -1,9 +1,10 @@
-import streamlit as st
-import pymupdf4llm
-from llama_cpp import Llama
 import re
 import tempfile
 import time
+
+import pymupdf4llm
+import streamlit as st
+from llama_cpp import Llama
 
 # -----------------------------
 # Page Config
@@ -96,10 +97,36 @@ def retrieve(question, top_k=2):
 # -----------------------------
 
 with st.sidebar:
+    st.markdown("## 🎓 StudentAI")
+
+    st.info(
+        """
+### Local-First Document Q&A
+
+**Document Extraction**
+- PyMuPDF4LLM
+
+**LLM Engine**
+- llama.cpp
+
+**Frontend**
+- Streamlit
+
+**Workflow**
+PDF → Extraction → Retrieval → Answer
+"""
+    )
+
+    if st.button("🗑️ Clear Chat"):
+        st.session_state.messages = []
+        st.rerun()
+
     st.title("📚 Upload PDF")
 
     uploaded_files = st.file_uploader(
-        "Upload PDF Notes", type=["pdf"], accept_multiple_files=True
+        "Upload PDF Notes",
+        type=["pdf"],
+        accept_multiple_files=True,
     )
 
     if st.button("Process PDFs"):
@@ -112,7 +139,8 @@ with st.sidebar:
             with st.spinner("📖 Extracting PDF structure..."):
                 for pdf in uploaded_files:
                     with tempfile.NamedTemporaryFile(
-                        delete=False, suffix=".pdf"
+                        delete=False,
+                        suffix=".pdf",
                     ) as tmp:
                         tmp.write(pdf.read())
 
@@ -127,14 +155,14 @@ with st.sidebar:
             st.success(f"Processed {len(uploaded_files)} PDF(s)")
 
             st.info(
-                f"""
-📄 Sections Created: {len(all_sections)}
+                """
+📄 Extraction: PyMuPDF4LLM
 
-⚡ Retrieval: Keyword Search
+🤖 Model: llama.cpp
 
-🤖 Model: TinyLlama
+🖥️ UI: Streamlit
 
-📚 Workflow: Mozilla Local Q&A
+🔄 PDF → Retrieval → Answer
 """
             )
 

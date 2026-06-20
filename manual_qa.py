@@ -1,8 +1,9 @@
 import json
+
 from llama_cpp import Llama
 
 # Load sections
-with open("sections.json", "r", encoding="utf-8") as f:
+with open("sections.json", encoding="utf-8") as f:
     sections = json.load(f)
 
 # Load model

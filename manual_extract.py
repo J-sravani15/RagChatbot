@@ -9,5 +9,5 @@ try:
     print(text[:2000])
     print("=" * 50)
 
-except Exception as e:
+except (FileNotFoundError, ValueError) as e:
     print("Error:", e)

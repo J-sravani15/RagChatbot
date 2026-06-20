@@ -8,7 +8,7 @@ StudentAI
 
 StudentAI is a local Retrieval-Augmented Generation (RAG) chatbot designed for students to upload PDF study materials and ask questions based on the uploaded content.
 
-The system runs completely locally using Ollama and does not require external APIs or vector databases.
+The system runs completely locally using llama.cpp and does not require external APIs or vector databases.
 
 ---
 
@@ -20,7 +20,7 @@ Role:
 
 * Answer questions using uploaded PDF documents.
 * Retrieve relevant context from processed PDF content.
-* Generate accurate answers using Ollama Llama 3.
+* Generate accurate answers using llama.cpp TinyLlama.
 * Refuse to hallucinate when information is not present in retrieved context.
 
 Responsibilities:
@@ -73,11 +73,11 @@ Responsibilities:
 
 Model:
 
-llama3
+tinyllama-1.1b-chat-v1.0 (GGUF)
 
 Provider:
 
-Ollama
+llama.cpp
 
 ---
 
