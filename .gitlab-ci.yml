@@ -18,6 +18,8 @@ default:
       - unknown_failure
       - scheduler_failure
       - runner_system_failure
+      - api_failure
+      - docker_error
 
 .setup: &setup
   - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
