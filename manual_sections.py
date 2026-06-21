@@ -3,36 +3,47 @@ import re
 
 import pymupdf4llm
 
-pdf_path = "documents/sales.pdf"
 
-markdown_text = pymupdf4llm.to_markdown(pdf_path)
+def build_sections(markdown_text):
+    sections = []
 
-sections = []
+    parts = re.split(r"\n##\s+", markdown_text)
 
-parts = re.split(r"\n##\s+", markdown_text)
+    for part in parts:
+        part = part.strip()
 
-for part in parts:
-    part = part.strip()
+        if not part:
+            continue
 
-    if not part:
-        continue
+        lines = part.split("\n", 1)
 
-    lines = part.split("\n", 1)
+        title = lines[0]
+        content = lines[1] if len(lines) > 1 else ""
 
-    title = lines[0]
+        sections.append({"title": title, "content": content})
 
-    content = lines[1] if len(lines) > 1 else ""
+    return sections
 
-    sections.append({"title": title, "content": content})
 
-with open("sections.json", "w", encoding="utf-8") as f:
-    json.dump(sections, f, indent=2, ensure_ascii=False)
+def main():
+    pdf_path = "documents/sales.pdf"
 
-print(f"Created {len(sections)} sections")
-print()
+    markdown_text = pymupdf4llm.to_markdown(pdf_path)
 
-print("First Section:")
-print("-" * 50)
-print(sections[0]["title"])
-print("-" * 50)
-print(sections[0]["content"][:500])
+    sections = build_sections(markdown_text)
+
+    with open("sections.json", "w", encoding="utf-8") as f:
+        json.dump(sections, f, indent=2, ensure_ascii=False)
+
+    print(f"Created {len(sections)} sections")
+    print()
+
+    print("First Section:")
+    print("-" * 50)
+    print(sections[0]["title"])
+    print("-" * 50)
+    print(sections[0]["content"][:500])
+
+
+if __name__ == "__main__":
+    main()

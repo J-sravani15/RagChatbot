@@ -1,18 +1,4 @@
-import re
-
-
-def build_sections(markdown_text):
-    sections = []
-    parts = re.split(r"\n##\s+", markdown_text)
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        lines = part.split("\n", 1)
-        title = lines[0]
-        content = lines[1] if len(lines) > 1 else ""
-        sections.append({"title": title, "content": content})
-    return sections
+from manual_sections import build_sections
 
 
 def test_build_sections():

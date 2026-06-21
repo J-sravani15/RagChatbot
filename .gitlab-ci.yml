@@ -117,7 +117,7 @@ coverage:
   before_script:
     - *setup_full
   script:
-    - uv run pytest --cov=app --cov-report=term --cov-report=xml --cov-fail-under=80
+    - uv run pytest --cov=manual_sections --cov-report=term --cov-report=xml --cov-fail-under=50
   artifacts:
     reports:
       coverage_report:

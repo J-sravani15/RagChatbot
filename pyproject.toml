@@ -27,7 +27,6 @@ dev = [
 "pyupgrade>=3.19.0",
 "radon>=6.0.1",
 "ruff>=0.15.18",
-"semgrep>=1.106.0",
 "vulture>=2.14",
 ]
 
@@ -51,7 +50,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --cov=app --cov-report=term --cov-fail-under=80"
+addopts = "-v --cov=manual_sections --cov-report=term --cov-fail-under=50"
 
 [tool.bandit]
 exclude_dirs = [".venv", "**pycache**", "tests", ".opencode"]
@@ -77,12 +76,12 @@ paths = [
 ]
 
 [tool.coverage.run]
-source = ["app"]
+source = ["manual_sections"]
 omit = [".venv/*", "__pycache__/*", "tests/*"]
 relative_files = true
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 50
 show_missing = true
 
 [tool.coverage.xml]

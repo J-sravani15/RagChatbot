@@ -4,7 +4,8 @@ title = "StudentAI Gitleaks Configuration"
 useDefault = true
 
 [allowlist]
-description = "Allowlisted files and patterns for StudentAI"
+description = "Allow common placeholder values"
+
 paths = [
   ".venv/",
   "__pycache__/",
@@ -12,17 +13,5 @@ paths = [
   ".pytest_cache/",
   ".ruff_cache/",
   ".git/",
-  ".opencode/",
-]
-
-[allowlist.regexes]
-description = "Regex patterns to allowlist"
-regexes = [
-  "-----BEGIN CERTIFICATE-----",
-  "-----BEGIN PUBLIC KEY-----",
-  "(?i)example.*(?:api|secret|key|token|password)",
-  "(?i)(?:api|secret|key|token|password).*example",
-  "password.*placeholder",
-  "secret.*placeholder",
-  "token.*placeholder",
+  ".opencode/"
 ]
