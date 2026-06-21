@@ -11,7 +11,12 @@ cache:
     - .cache/uv
     - .venv/
 
-before_script:
+.setup: &setup
+  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
+  - curl -LsSf https://astral.sh/uv/install.sh | sh
+  - export PATH="$HOME/.local/bin:$PATH"
+
+.setup_full: &setup_full
   - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates cmake build-essential
   - curl -LsSf https://astral.sh/uv/install.sh | sh
   - export PATH="$HOME/.local/bin:$PATH"
@@ -29,48 +34,64 @@ stages:
 
 ruff:
   stage: lint
+  before_script:
+    - *setup
   script:
-    - uv run ruff check .
+    - uvx ruff check .
   allow_failure: false
 
 ruff-format:
   stage: format
+  before_script:
+    - *setup
   script:
-    - uv run ruff format --check .
+    - uvx ruff format --check .
   allow_failure: false
 
 pylint:
   stage: lint
+  before_script:
+    - *setup
   script:
-    - uv run pylint app.py manual_*.py
+    - uvx pylint app.py manual_*.py
   allow_failure: false
 
 flake8:
   stage: lint
+  before_script:
+    - *setup
   script:
-    - uv run flake8 app.py manual_*.py tests/
+    - uvx flake8 app.py manual_*.py tests/
   allow_failure: false
 
 mypy:
   stage: type_check
+  before_script:
+    - *setup_full
   script:
     - uv run mypy app.py tests/
   allow_failure: false
 
 bandit:
   stage: security
+  before_script:
+    - *setup
   script:
-    - uv run bandit -c pyproject.toml -r app.py manual_*.py
+    - uvx bandit -c pyproject.toml -r app.py manual_*.py
   allow_failure: false
 
 semgrep:
   stage: security
+  before_script:
+    - *setup
   script:
-    - uv run semgrep --config=auto --config=.semgrep.toml --error .
+    - uvx semgrep --config=auto --config=.semgrep.toml --error .
   allow_failure: false
 
 gitleaks:
   stage: security
+  before_script:
+    - *setup
   script:
     - apt-get install -y gitleaks
     - gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
@@ -78,12 +99,16 @@ gitleaks:
 
 pytest:
   stage: test
+  before_script:
+    - *setup_full
   script:
     - uv run pytest
 
 coverage:
   stage: coverage
   coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+\.?\d*)%/'
+  before_script:
+    - *setup_full
   script:
     - uv run pytest --cov=app --cov-report=term --cov-report=xml --cov-fail-under=80
   artifacts:
@@ -94,18 +119,24 @@ coverage:
 
 dependency-audit:
   stage: audit
+  before_script:
+    - *setup
   script:
     - uv audit
   allow_failure: false
 
 changelog-check:
   stage: compliance
+  before_script:
+    - *setup_full
   script:
     - uv run git-cliff --unreleased --check
   allow_failure: false
 
 spec-kit-check:
   stage: compliance
+  before_script:
+    - *setup
   script:
     - test -d specify && echo "specify/ exists"
     - test -f constitution.md && echo "constitution.md exists"
