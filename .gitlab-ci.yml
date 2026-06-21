@@ -1,6 +1,4 @@
-image:
-  name: docker.io/python:3.13-slim
-  pull_policy: if-not-present
+image: python:3.13-slim
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
