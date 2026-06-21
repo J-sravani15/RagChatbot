@@ -61,7 +61,7 @@ skips = ["B101", "B311"]
 py-version = "3.13"
 max-line-length = 100
 ignore = [".venv", "**pycache**", ".opencode"]
-disable = ["C0103", "C0114", "C0115", "C0116", "W0621", "R0801", "R0903", "R0913"]
+disable = ["C0103", "C0114", "C0115", "C0116", "E0401", "W0621", "R0801", "R0903", "R0913"]
 
 [tool.pyupgrade]
 py39-plus = true
