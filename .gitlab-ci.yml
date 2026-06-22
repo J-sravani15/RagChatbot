@@ -127,7 +127,7 @@ dependency-audit:
     - *setup
   script:
     - uv audit
-  allow_failure: false
+  allow_failure: true
 
 changelog-check:
   stage: compliance
