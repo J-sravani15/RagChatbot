@@ -19,13 +19,11 @@ default:
 
 .setup: &setup
   - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
-  - curl -LsSf https://astral.sh/uv/install.sh | sh
-  - export PATH="$HOME/.local/bin:$PATH"
+  - pip install uv
 
 .setup_full: &setup_full
   - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates cmake build-essential
-  - curl -LsSf https://astral.sh/uv/install.sh | sh
-  - export PATH="$HOME/.local/bin:$PATH"
+  - pip install uv
   - uv sync --frozen
 
 stages:
