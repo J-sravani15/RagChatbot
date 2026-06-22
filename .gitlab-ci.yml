@@ -22,7 +22,7 @@ default:
   - pip install uv
 
 .setup_full: &setup_full
-  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates cmake build-essential
+  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
   - pip install uv
   - uv sync --frozen
 
