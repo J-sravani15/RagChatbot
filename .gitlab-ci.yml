@@ -18,11 +18,11 @@ default:
       - always
 
 .setup: &setup
-  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates
+  - apt-get update -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 && apt-get install -y --no-install-recommends -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 git curl ca-certificates
   - pip install uv
 
 .setup_full: &setup_full
-  - apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates build-essential cmake
+  - apt-get update -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 && apt-get install -y --no-install-recommends -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 git curl ca-certificates build-essential cmake
   - pip install uv
   - uv sync --frozen
 
