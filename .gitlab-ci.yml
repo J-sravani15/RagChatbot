@@ -37,40 +37,50 @@ stages:
 ruff:
   stage: lint
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uvx ruff check .
   allow_failure: false
 
 ruff-format:
   stage: format
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uvx ruff format --check .
   allow_failure: false
 
 pylint:
   stage: lint
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uvx pylint app.py manual_*.py
   allow_failure: false
 
 flake8:
   stage: lint
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uvx flake8 app.py manual_*.py tests/
   allow_failure: false
 
 mypy:
   stage: type_check
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup_full
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uv run mypy app.py tests/
   allow_failure: false
 
@@ -95,23 +105,26 @@ gitleaks:
   before_script:
     - *setup
   script:
-    - apt-get install -y gitleaks
-    - gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
   allow_failure: false
 
 pytest:
   stage: test
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup_full
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uv run pytest
 
 coverage:
   stage: coverage
   coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+\.?\d*)%/'
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup_full
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uv run pytest --cov=manual_sections --cov-report=term --cov-report=xml --cov-fail-under=50
   artifacts:
     reports:
@@ -122,24 +135,30 @@ coverage:
 dependency-audit:
   stage: audit
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uv audit
   allow_failure: true
 
 changelog-check:
   stage: compliance
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup_full
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - uv run git-cliff --unreleased --check
   allow_failure: false
 
 spec-kit-check:
   stage: compliance
   before_script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - *setup
   script:
+    - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
     - test -d specify && echo "specify/ exists"
     - test -f constitution.md && echo "constitution.md exists"
     - test -d Templates && echo "Templates/ exists"
