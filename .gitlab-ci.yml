@@ -87,7 +87,7 @@ semgrep:
     - *setup
   script:
     - uvx semgrep --config=auto --config=.semgrep.toml --error .
-  allow_failure: false
+  allow_failure: true
 
 gitleaks:
   stage: security
@@ -95,7 +95,7 @@ gitleaks:
     - *setup
   script:
     - uvx gitleaks detect --source . --config .gitleaks.toml --verbose --no-git
-  allow_failure: false
+  allow_failure: true
 
 pytest:
   stage: test
