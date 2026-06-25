@@ -2,7 +2,7 @@ image: python:3.13-slim
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  UV_CACHE_DIR: "/tmp/uv-cache"
 
 cache: {}
 
@@ -16,6 +16,7 @@ default:
   - pip install uv
 
 .setup_full: &setup_full
+  - apt-get update -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 && apt-get install -y --no-install-recommends -o Acquire::Retries=5 -o Acquire::http::Pipeline-Depth=0 build-essential cmake
   - pip install uv
   - uv sync --frozen
 
