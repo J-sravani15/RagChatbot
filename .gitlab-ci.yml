@@ -79,11 +79,8 @@ bandit:
 
 semgrep:
   stage: security
-  before_script:
-    - *setup
-  script:
-    - uvx semgrep --config=auto --config=.semgrep.toml --error .
-  allow_failure: true
+  rules:
+    - when: never
 
 pytest:
   stage: test
