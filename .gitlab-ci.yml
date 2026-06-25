@@ -78,10 +78,7 @@ bandit:
     - uvx bandit -c pyproject.toml -r app.py manual_*.py
   allow_failure: false
 
-semgrep:
-  stage: security
-  rules:
-    - when: never
+
 
 pytest:
   stage: test
