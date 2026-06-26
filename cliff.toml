@@ -16,7 +16,6 @@ body = """
 {% endfor %}
 """
 trim = true
-postprocess = null
 
 [git]
 conventional_commits = true
