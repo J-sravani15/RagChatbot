@@ -111,7 +111,7 @@ changelog-check:
   before_script:
     - *setup_full
   script:
-    - uv run git-cliff --unreleased --check
+    - uvx git-cliff --unreleased --check
   allow_failure: false
 
 spec-kit-check:
