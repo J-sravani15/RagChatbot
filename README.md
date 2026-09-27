@@ -1,208 +1,310 @@
-# StudentAI 🎓
+StudentAI 🎓
+Local-First Intelligent Document Question Answering System
 
-**Local Retrieval-Augmented Generation (RAG) Chatbot for Students**
+StudentAI is a privacy-first Artificial Intelligence application that enables users to upload PDF documents and interact with them using natural language queries. The system follows a retrieval-augmented question-answering approach that retrieves relevant information from uploaded documents before generating responses through a locally running Large Language Model (LLM).
 
-StudentAI is a privacy-first, local document Q&A application. Upload PDF study materials and ask questions — the system retrieves relevant content and generates answers using a local LLM. No internet connection, no API costs, no data leaves your machine.
+Unlike cloud-based AI solutions, StudentAI follows a local-first architecture where all document processing, retrieval, and AI inference occur on the user's machine. This ensures privacy, security, offline accessibility, and complete ownership of user data.
 
----
-
-## Features
-
-- **PDF Upload & Extraction** — Upload one or more PDF files; text is automatically extracted using PyMuPDF4LLM.
-- **Section-Based Retrieval** — Documents are split into logical sections; keyword scoring finds the most relevant content for your question.
-- **Local LLM Inference** — Uses llama.cpp with a TinyLlama GGUF model. Everything runs on your machine.
-- **Typewriter Response** — Answers are rendered word-by-word for a natural reading experience.
-- **Retrieved Context Display** — Expand to see exactly which parts of the document were used to generate the answer.
-- **Clear Chat** — Reset the conversation with one click.
-- **Streamlit UI** — Clean, responsive web interface.
-
----
-
-## Architecture
-
-```
+Project Status
+✅ Functional PDF Question Answering System
+✅ Local Large Language Model Integration
+✅ GitLab CI/CD Pipeline
+✅ Automated Testing
+✅ Security Scanning
+✅ Static Code Analysis
+✅ Open-Source Documentation
+✅ AGPL-3.0 Licensed
+✅ 100% Compliance Score
+Features
+PDF Document Upload
+PDF Text Extraction using PyMuPDF4LLM
+Section-Based Document Processing
+Keyword-Based Document Retrieval
+Context-Aware Answer Generation
+Local LLM Inference using llama.cpp
+Interactive Chat Interface
+Retrieved Context Viewer
+Typewriter Response Rendering
+Privacy-First Design
+Offline Operation
+Automated Testing and Validation
+GitLab CI/CD Integration
+Security Compliance Checks
+System Architecture
 ┌─────────────────────────────────────────────────────────────┐
 │                     User (Browser)                          │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Streamlit Frontend                          │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │ PDF Upload  │  │ Chat Panel   │  │ Context Viewer   │   │
-│  └──────┬──────┘  └──────┬───────┘  └──────────────────┘   │
-└─────────┼────────────────┼──────────────────────────────────┘
-          │                │
-          ▼                ▼
+│                  Streamlit Frontend                         │
+│                                                             │
+│   PDF Upload  →  Chat Interface  →  Context Viewer         │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Application Logic                         │
-│  ┌──────────────────┐  ┌────────────────────────────────┐   │
-│  │ Section Builder  │  │ Keyword Retrieval              │   │
-│  │ (re.split on ##) │  │ (word overlap scoring, top_k)  │   │
-│  └────────┬─────────┘  └───────────────┬────────────────┘   │
-└───────────┼────────────────────────────┼────────────────────┘
-            │                            │
-            ▼                            ▼
-┌─────────────────────┐  ┌────────────────────────────────────┐
-│  PyMuPDF4LLM        │  │  llama.cpp (TinyLlama GGUF)        │
-│  (PDF → Markdown)   │  │  (Prompt + Context → Answer)       │
-└─────────────────────┘  └────────────────────────────────────┘
-```
+│                  Application Layer                          │
+│                                                             │
+│  Document Processing                                        │
+│  Section Builder                                            │
+│  Retrieval Module                                           │
+│  Prompt Construction                                        │
+│  Response Generation                                        │
+└───────────────┬───────────────────────┬─────────────────────┘
+                │                       │
+                ▼                       ▼
+┌──────────────────────┐   ┌───────────────────────────────┐
+│      PyMuPDF4LLM     │   │         llama.cpp             │
+│   PDF → Markdown     │   │    Local LLM Inference        │
+└──────────────────────┘   └───────────────────────────────┘
+Workflow
+PDF Upload
+      │
+      ▼
+PyMuPDF4LLM Extraction
+      │
+      ▼
+Markdown Conversion
+      │
+      ▼
+Section Builder
+      │
+      ▼
+User Question
+      │
+      ▼
+Keyword-Based Retrieval
+      │
+      ▼
+Top Relevant Sections
+      │
+      ▼
+Prompt Construction
+      │
+      ▼
+TinyLlama (llama.cpp)
+      │
+      ▼
+Generated Response
+      │
+      ▼
+Streamlit Interface
+Retrieval Mechanism
 
-**Data Flow:**
+StudentAI uses a lightweight keyword-based retrieval approach.
 
-```
-PDF Upload → PyMuPDF4LLM → Markdown Text
-    → Section Builder (split by ## headings)
-    → User Question
-    → Keyword Retrieval (score sections by word overlap)
-    → Top-k Sections → Context Truncation (1500 chars)
-    → LLM Prompt (Context + Question)
-    → Generated Answer → Streamlit UI (typewriter effect)
-```
+The uploaded PDF is converted into structured Markdown and divided into logical sections. When a user submits a question:
 
----
+The query is tokenized into keywords.
+Each document section is compared against the query.
+Sections receive scores based on keyword overlap.
+Top-matching sections are selected.
+Retrieved context is supplied to the language model.
+The model generates an answer using only the retrieved content.
 
-## Installation
+This retrieval-augmented workflow improves answer relevance while maintaining a lightweight, fully local implementation.
 
-### Prerequisites
+Installation
+Prerequisites
+Python 3.13+
+uv Package Manager
+GGUF Model File
 
-- Python 3.13 or higher
-- A GGUF model file in the `models/` directory (default: `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`)
+Example model:
 
-### Setup
+tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 
-1. **Install uv** (fast Python package manager):
+Place the model inside:
 
-   ```bash
-   pip install uv
-   ```
+models/
+Setup
+Clone Repository
+git clone https://code.swecha.org/sravani15/rag-chatbot.git
+cd rag-chatbot
+Install Dependencies
+uv sync --all-groups
+Run Application
+uv run streamlit run app.py
+Open Browser
+http://localhost:8501
+Usage
+Step 1
 
-2. **Clone the repository:**
+Upload one or more PDF documents.
 
-   ```bash
-   git clone https://code.swecha.org/sravani15/rag-chatbot.git
-   cd rag-chatbot
-   ```
+Step 2
 
-3. **Install dependencies:**
+Process the uploaded documents.
 
-   ```bash
-   uv sync --all-groups
-   ```
+Step 3
 
-4. **Place a GGUF model file** in `models/`. You can download TinyLlama:
+Wait for text extraction and document processing.
 
-   ```bash
-   # Example using a TinyLlama GGUF model
-   # Place the file at: models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
-   ```
+Step 4
 
-5. **Run the application:**
+Ask questions related to the uploaded document.
 
-   ```bash
-   uv run streamlit run app.py
-   ```
+Step 5
 
-6. **Open your browser** to `http://localhost:8501`.
+Review the generated response and retrieved context.
 
----
+Technologies Used
+Category	Technology
+Programming Language	Python 3.13+
+User Interface	Streamlit
+PDF Processing	PyMuPDF4LLM
+Retrieval System	Custom Keyword-Based Retrieval
+LLM Inference	llama.cpp
+Language Model	TinyLlama GGUF
+Package Manager	uv
+Version Control	Git
+Repository Hosting	GitLab
+CI/CD	GitLab CI/CD
+Compliance & Quality Assurance
 
-## Usage
+StudentAI was developed following open-source software engineering practices and successfully achieved a 100% Compliance Score using the Swecha Project Compliance Framework.
 
-1. Open StudentAI in your browser.
-2. In the sidebar, click **Browse files** to upload one or more PDF files.
-3. Click **Process PDFs** to extract and index the content.
-4. Type your question in the chat input and press Enter.
-5. View the answer and expand **Retrieved Context** to see source material.
+The project includes:
 
----
+Project Documentation Standards
+Security Policies
+License Compliance
+Contribution Guidelines
+Continuous Integration
+Automated Testing
+Static Analysis
+Security Scanning
+Code Quality Validation
+Quality Assurance Tools
+Tool	Purpose
+Ruff	Linting & Formatting
+Flake8	Style Validation
+Pylint	Code Quality Analysis
+Mypy	Static Type Checking
+Pytest	Automated Testing
+Bandit	Security Scanning
+Semgrep	Static Application Security Testing
+Gitleaks	Secret Detection
+Pyupgrade	Python Modernization
+Vulture	Dead Code Detection
+Radon	Complexity Analysis
+Testing
 
-## Pre-commit
+Install pre-commit hooks:
 
-This project uses [pre-commit](https://pre-commit.com/) to enforce code quality. Install the hooks:
-
-```bash
 uv run pre-commit install
-```
 
-Run all hooks manually:
+Run all validation checks:
 
-```bash
 uv run pre-commit run --all-files
-```
 
-The following checks are enforced:
+Run tests:
 
-| Tool      | Category              | Purpose                         |
-|-----------|-----------------------|---------------------------------|
-| Ruff      | Linting & Formatting  | Code style and quality          |
-| Mypy      | Type Checking         | Static type analysis            |
-| Pytest    | Testing               | Test suite execution            |
-| Bandit    | Security              | Vulnerability scanning          |
-| Pylint    | Code Quality          | Deep static analysis            |
-| Pyupgrade | Modernization         | Python syntax upgrades          |
-| Vulture   | Dead Code             | Unused code detection           |
-| Radon     | Complexity            | Cyclomatic complexity analysis  |
-| Semgrep   | SAST                  | Static application security     |
-
----
-
-## Testing
-
-Run the test suite with pytest:
-
-```bash
 uv run pytest
-```
 
-Tests are located in the `tests/` directory. Coverage includes:
+Coverage includes:
 
-- Section building from markdown text
-- Retrieval logic (keyword-based scoring)
+Section generation
+Retrieval logic
+Question-answering workflow
+Application validation
+Continuous Integration (CI/CD)
 
----
+StudentAI uses GitLab CI/CD pipelines to automatically validate every change pushed to the repository.
 
-## Technologies
+Pipeline Stages
+Lint
+ ↓
+Format
+ ↓
+Type Check
+ ↓
+Security Scan
+ ↓
+Testing
+ ↓
+Coverage
+ ↓
+Compliance
+Automated Validation
+Ruff
+Flake8
+Pylint
+Mypy
+Bandit
+Semgrep
+Gitleaks
+Pytest
+Coverage Analysis
 
-| Component               | Technology                      |
-|-------------------------|---------------------------------|
-| Programming Language    | Python 3.13+                    |
-| Web Framework           | Streamlit                       |
-| PDF Extraction          | PyMuPDF4LLM                     |
-| LLM Inference           | llama.cpp (via llama-cpp-python)|
-| Model                   | TinyLlama 1.1B (GGUF)           |
-| Package Manager         | uv                              |
-| Linting                 | Ruff, Pylint                    |
-| Type Checking           | Mypy                            |
-| Testing                 | Pytest                          |
-| Security                | Bandit, Semgrep                 |
-| Dead Code Detection     | Vulture                         |
-| Code Complexity         | Radon                           |
-| Pre-commit              | Pre-commit                      |
+Every commit must successfully pass all validation stages before integration.
 
----
+Security
 
-## Mozilla Local-First Workflow
+StudentAI incorporates multiple security validation layers:
 
-StudentAI follows the **Mozilla local-first** philosophy:
+Bandit Security Analysis
+Semgrep Security Scanning
+Gitleaks Secret Detection
+Dependency Auditing
+Pre-Commit Validation
 
-- **No external APIs** — All LLM inference runs locally via llama.cpp.
-- **No data transmission** — PDFs are processed entirely on your machine.
-- **No account required** — No sign-up, no login, no tracking.
-- **Offline-capable** — Once dependencies and model are downloaded, the application works fully offline.
-- **Privacy by design** — Your study materials never leave your computer.
+These tools help identify vulnerabilities, insecure coding patterns, and accidental secret exposure.
 
-This approach aligns with Mozilla's principles of putting users in control of their data and computing experience.
+Mozilla Local-First Principles
 
----
+StudentAI follows Mozilla's Local-First philosophy.
 
-## License
+Benefits
+No external AI APIs
+No cloud dependency
+No user tracking
+Offline functionality
+Complete data ownership
+Enhanced privacy and security
 
-This project is licensed under the MIT License.
+All uploaded documents remain on the user's machine throughout processing and response generation.
 
----
+Internship Context
 
-## Security
+This project was developed during the Artificial Intelligence Internship conducted by VISWAM.AI and Swecha Foundation.
 
-See [SECURITY.md](SECURITY.md) for our security policy and vulnerability reporting guidelines.
+The internship focused on:
+
+Artificial Intelligence Applications
+Intelligent Document Processing
+Retrieval-Augmented Question Answering
+Local AI Systems
+Open Source Software Development
+GitLab CI/CD Workflows
+Software Quality Assurance
+Project Compliance Standards
+
+The project provided practical experience in building AI-powered applications while following modern software engineering practices.
+
+Project Highlights
+Developed during the VISWAM.AI / Swecha Artificial Intelligence Internship
+Built as a Local-First Intelligent Document Question Answering System
+Processes PDF documents entirely offline
+Uses retrieval-augmented answer generation
+Integrates local LLM inference through llama.cpp
+Implements automated testing and security validation
+Uses GitLab CI/CD for continuous integration
+Achieved 100% Compliance Score
+Follows Mozilla Local-First principles
+License
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+
+Security
+
+See SECURITY.md for our security policy and vulnerability reporting guidelines
+
+Author
+
+Sravani Jagarlamudi
+
+Artificial Intelligence Intern
+VISWAM.AI – Centre of Excellence on AI for the Global South
+Swecha Foundation & IIIT Hyderabad
